@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Authors>Naveed Ul-Haq</Authors>
+    <Company>ailogica Ltd</Company>
+    <Product>Azure Helpers</Product>
+    <Description>This package contains various helpers to code effectively with Microsoft Azure</Description>
+    <PackageProjectUrl>https://naveedulhaq.com/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/nulhaq/Azure-Helpers</RepositoryUrl>
+    <PackageTags>.net, azure, blob storage</PackageTags>
+    <PackageId>ailogica.Azure.Helpers</PackageId>
+    <AssemblyVersion>1.0.*</AssemblyVersion>
+	<Deterministic>false</Deterministic>
+	<AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
+	<Version>1.0.1</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.5.0" />
+    <PackageReference Include="System.Drawing.Common" Version="4.5.1" />
+    <PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System">
+      <HintPath>System</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>
