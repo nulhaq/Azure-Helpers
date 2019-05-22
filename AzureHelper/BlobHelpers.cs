@@ -15,7 +15,7 @@ namespace ailogica.Azure.Helpers
             _storageConnectionString = storageConnectionString;
         }
 
-        public async Task<HelperResponse> UploadBlobs(string containername, string filename, string filepath, bool overwrite = true)
+        public async Task<HelperResponse> UploadBlob(string containername, string filename, string filepath, bool overwrite = true)
         {
             var storageacc = CloudStorageAccount.Parse(_storageConnectionString);
             var cloudBlobClient = storageacc.CreateCloudBlobClient();
@@ -26,16 +26,54 @@ namespace ailogica.Azure.Helpers
                 filename = Path.GetFileName(filepath);
             }
 
-            CloudBlockBlob blockBlob = container.GetBlockBlobReference(filename);
             try
             {
-                var isExists = await blockBlob.ExistsAsync();
-                if (overwrite || !isExists)
+
+                if (await container.CreateIfNotExistsAsync())
                 {
-                    await blockBlob.UploadFromFileAsync(filepath);
+                    await container.SetPermissionsAsync(
+                        new BlobContainerPermissions
+                        {
+                            PublicAccess = BlobContainerPublicAccessType.Blob
+                        }
+                        );
                 }
+                CloudBlockBlob blockBlob = container.GetBlockBlobReference(filename);
+
+                await blockBlob.UploadFromFileAsync(filepath);
+
+                return new HelperResponse { Message = "success", Success = true, FileName = filename, FileUrl = blockBlob.Uri.ToString() };
+            }
+            catch (Exception ex)
+            {
+                return new HelperResponse { Message = ex.Message, Success = false };
+            }
+
+        }
+
+        public async Task<HelperResponse> UploadBlob(string containername, string filename, Stream filestream)
+        {
+            var storageacc = CloudStorageAccount.Parse(_storageConnectionString);
+            var cloudBlobClient = storageacc.CreateCloudBlobClient();
+            var container = cloudBlobClient.GetContainerReference(containername);
+            
+            try
+            {
+
+                if (await container.CreateIfNotExistsAsync())
+                {
+                    await container.SetPermissionsAsync(
+                        new BlobContainerPermissions
+                        {
+                            PublicAccess = BlobContainerPublicAccessType.Blob
+                        }
+                        );
+                }
+                CloudBlockBlob blockBlob = container.GetBlockBlobReference(filename);
+
+                await blockBlob.UploadFromStreamAsync(filestream);
                 
-                return new HelperResponse{ Message = "success", Success = true, FileName = filename};
+                return new HelperResponse { Message = "success", Success = true, FileName = filename , FileUrl = blockBlob.Uri.ToString() };
             }
             catch (Exception ex)
             {

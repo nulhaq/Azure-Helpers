@@ -1,12 +1,18 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
+using System.IO;
+using System.Threading.Tasks;
 using ailogica.Azure.Helpers;
+using ailogica.Azure.Helpers.Services;
 using DotNetCore.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DotNetCore.Controllers
 {
     public class HomeController : Controller
     {
+        BlobService imageService = new BlobService();
         public IActionResult Index()
         {
             return View();
@@ -14,11 +20,45 @@ namespace DotNetCore.Controllers
 
         public IActionResult AzureBlobStorage()
         {
-            ViewData["Message"] = "Your application description page.";
+            
+            return View();
+        }
+        // GET: Image
+        public ActionResult Upload()
+        {
+            return View();
+        }
 
-            var azureHelper = new BlobHelpers("DefaultEndpointsProtocol=https;AccountName=dealbargainsresourceg232;AccountKey=5Cu3lyQfocuL59nhGOmMBeRvhMe3Mk77DyZw19J5icw70xP6w17tQi6umGgSke2cS/MS5+z0Cq9eTJFsd4Ja0w==;EndpointSuffix=core.windows.net");
-            var uploadBlobs = azureHelper.UploadBlobs("product-images", "uk/naveed.jpg", @"C:\code\Examples\DotNetCore-Examples\naveed.jpg");
-            var isExist = azureHelper.BlobExist("product-images", "uk/naveed.jpg", @"C:\code\Examples\DotNetCore-Examples\naveed.jpg");
+        [HttpPost]
+        public async Task<ActionResult> Upload(IFormFile photo)
+        {
+            var imageUrl = string.Empty;
+
+            var azureHelper = new BlobHelpers("connection-string");
+                      
+            var filePath = Path.GetTempFileName();
+            if (photo.Length > 0)
+            {
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await photo.CopyToAsync(stream);
+                    var result = await azureHelper.UploadBlob("sampleimage", photo.FileName, stream);
+                    imageUrl = result.FileUrl;
+                }
+            }
+
+            TempData["LatestImage"] = imageUrl.ToString();
+            return RedirectToAction("LatestImage");
+        }
+
+        public ActionResult LatestImage()
+        {
+            var latestImage = string.Empty;
+            if (TempData["LatestImage"] != null)
+            {
+                ViewBag.LatestImage = Convert.ToString(TempData["LatestImage"]);
+            }
+
             return View();
         }
 

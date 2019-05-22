@@ -1,4 +1,5 @@
-﻿@{
+﻿@model string
+@{
     ViewData["Title"] = "Azure Blob Storage";
 }
 <h2>@ViewData["Title"]</h2>
@@ -21,5 +22,8 @@
 
     </div>
 </fieldset>
-
 }
+
+<h3>Latest Uploaded Image</h3>
+<br />
+<img src="@ViewBag.LatestImage" title="Latest Uploaded" />
